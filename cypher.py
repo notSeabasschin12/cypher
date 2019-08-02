@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun Jul 28 21:23:43 2019
-
 @author: sebastianguo
 """
 
@@ -19,14 +18,12 @@ def load_words(file_name):
     Depending on the size of the word list, this function may
     take a while to finish.
     '''
-    print('Loading word list from file...')
     # inFile: file
     in_file = open(file_name, 'r')
     # line: string
     line = in_file.readline()
     # word_list: list of strings
     word_list = line.split()
-    print('  ', len(word_list), 'words loaded.')
     in_file.close()
     return word_list
 
@@ -35,12 +32,10 @@ def is_word(word_list, word):
     '''
     Determines if word is a valid word, ignoring
     capitalization and punctuation
-
     word_list (list): list of words in the dictionary.
     word (string): a possible word.
     
     Returns: True if word is in word_list, False otherwise
-
     Example:
     >>> is_word(word_list, 'bat') returns
     True
@@ -71,7 +66,6 @@ class Message(object):
         Initializes a Message object
                 
         text (string): the message's text
-
         a Message object has two attributes:
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words
@@ -105,7 +99,6 @@ class Message(object):
         
         shift (integer): the amount by which to shift every letter of the 
         alphabet. 0 <= shift < 26
-
         Returns: a dictionary mapping a letter (string) to 
                  another letter (string). 
         '''
@@ -155,7 +148,6 @@ class Message(object):
         
         shift (integer): the shift with which to encrypt the message.
         0 <= shift < 26
-
         Returns: the message text (string) in which every character is shifted
              down the alphabet by the input shift
         '''
@@ -176,14 +168,12 @@ class PlaintextMessage(Message):
         
         text (string): the message's text
         shift (integer): the shift associated with this message
-
         A PlaintextMessage object inherits from Message and has five attributes:
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
             self.shift (integer, determined by input shift)
             self.encrypting_dict (dictionary, built using shift)
             self.message_text_encrypted (string, created using shift)
-
         Hint: consider using the parent class constructor so less 
         code is repeated
         '''
@@ -226,7 +216,6 @@ class PlaintextMessage(Message):
         
         shift (integer): the new shift that should be associated with this message.
         0 <= shift < 26
-
         Returns: nothing
         '''
         self.shift = shift
@@ -238,7 +227,6 @@ class CiphertextMessage(Message):
         Initializes a CiphertextMessage object
                 
         text (string): the message's text
-
         a CiphertextMessage object has two attributes:
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
@@ -253,56 +241,34 @@ class CiphertextMessage(Message):
         on the message text. If s is the original shift value used to encrypt
         the message, then we would expect 26 - s to be the best shift value 
         for decrypting it.
-
         Note: if multiple shifts are  equally good such that they all create 
         the maximum number of you may choose any of those shifts (and their
         corresponding decrypted messages) to return
-
         Returns: a tuple of the best shift value used to decrypt the message
         and the decrypted message text using that shift value
         '''
         highestCounter = 0
         bestShift = 0
         message = ''
-        
+        regularString = self.get_message_text()
         for testCase in range(0, 26):
             counter = 0
-            encryptedString = self.apply_shift(26-testCase)
+            encryptedString = regularString
+            encryptedString = self.apply_shift(25)
             encryptedString = encryptedString.split(' ')
 
-
-
             for word in encryptedString:
-                print(word)
-                print(is_word(WORDLIST_FILENAME, word))
                 word = word.lower()
                 word = word.strip(" !@#$%^&*()-_+={}[]|\:;'<>?,./\"")
                 if word in load_words(WORDLIST_FILENAME):
-
-                    print('yes')
                     counter += 1
-
             if counter > highestCounter:
                 highestCounter = counter
-                bestShift = testCase
-
-                message = ' '.join(encryptedString)
+                bestShift = testCase + 1
+                message = ' '.join(encryptedString)        
         tup = (bestShift, message)
         return tup
-
-                    
             
             
-#x = CiphertextMessage('')
-#print(x.decrypt_message())
-
-##Example test case (PlaintextMessage)
-#plaintext = PlaintextMessage('hello', 2)
-#print('Expected Output: jgnnq')
-#print('Actual Output:', plaintext.get_message_text_encrypted())
-
-#    
-##Example test case (CiphertextMessage)
-ciphertext = CiphertextMessage('jgnnq you')
-print('Expected Output:', (1, 'hello'))
-print('Actual Output:', ciphertext.decrypt_message())
+x = CiphertextMessage(get_story_string())
+print(x.decrypt_message())
