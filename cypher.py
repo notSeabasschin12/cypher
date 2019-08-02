@@ -187,7 +187,10 @@ class PlaintextMessage(Message):
         Hint: consider using the parent class constructor so less 
         code is repeated
         '''
-        pass #delete this line and replace with your code here
+        Message.__init__(self, text)
+        self.shift = shift
+        if self.shift != self.get_shift():
+            self.shift = self.get_shift() + shift
 
     def get_shift(self):
         '''
@@ -195,7 +198,7 @@ class PlaintextMessage(Message):
         
         Returns: self.shift
         '''
-        pass #delete this line and replace with your code here
+        return self.shift
 
     def get_encrypting_dict(self):
         '''
@@ -203,15 +206,17 @@ class PlaintextMessage(Message):
         
         Returns: a COPY of self.encrypting_dict
         '''
-        pass #delete this line and replace with your code here
-
+        self.encrypting_dict = self.build_shift_dict(self.shift)
+        return self.encrypting_dict[:]                                                    
+        
     def get_message_text_encrypted(self):
         '''
         Used to safely access self.message_text_encrypted outside of the class
         
         Returns: self.message_text_encrypted
         '''
-        pass #delete this line and replace with your code here
+        self.message_text_encrypted = self.apply_shift(self.shift)
+        return self.message_text_encrypted
 
     def change_shift(self, shift):
         '''
@@ -224,7 +229,7 @@ class PlaintextMessage(Message):
 
         Returns: nothing
         '''
-        pass #delete this line and replace with your code here
+        self.shift = shift
 
 
 class CiphertextMessage(Message):
@@ -238,11 +243,11 @@ class CiphertextMessage(Message):
             self.message_text (string, determined by input text)
             self.valid_words (list, determined using helper function load_words)
         '''
-        pass #delete this line and replace with your code here
-
+        Message.__init__(self, text)
+        
     def decrypt_message(self):
         '''
-        Decrypt self.message_text by trying every possible shift value
+        Decrypt self.message_text by trying every possible shift value  
         and find the "best" one. We will define "best" as the shift that
         creates the maximum number of real words when we use apply_shift(shift)
         on the message text. If s is the original shift value used to encrypt
@@ -256,16 +261,48 @@ class CiphertextMessage(Message):
         Returns: a tuple of the best shift value used to decrypt the message
         and the decrypted message text using that shift value
         '''
-        pass #delete this line and replace with your code here
+        highestCounter = 0
+        bestShift = 0
+        message = ''
+        
+        for testCase in range(0, 26):
+            counter = 0
+            encryptedString = self.apply_shift(26-testCase)
+            encryptedString = encryptedString.split(' ')
 
-x = Message('hello')
-print(x.apply_shift(3))
+
+
+            for word in encryptedString:
+                print(word)
+                print(is_word(WORDLIST_FILENAME, word))
+                word = word.lower()
+                word = word.strip(" !@#$%^&*()-_+={}[]|\:;'<>?,./\"")
+                if word in load_words(WORDLIST_FILENAME):
+
+                    print('yes')
+                    counter += 1
+
+            if counter > highestCounter:
+                highestCounter = counter
+                bestShift = testCase
+
+                message = ' '.join(encryptedString)
+        tup = (bestShift, message)
+        return tup
+
+                    
+            
+            
+#x = CiphertextMessage('')
+#print(x.decrypt_message())
+
 ##Example test case (PlaintextMessage)
 #plaintext = PlaintextMessage('hello', 2)
 #print('Expected Output: jgnnq')
 #print('Actual Output:', plaintext.get_message_text_encrypted())
+
 #    
 ##Example test case (CiphertextMessage)
-#ciphertext = CiphertextMessage('jgnnq')
-#print('Expected Output:', (24, 'hello'))
-#print('Actual Output:', ciphertext.decrypt_message())
+ciphertext = CiphertextMessage('jgnnq you')
+print('Expected Output:', (1, 'hello'))
+print('Actual Output:', ciphertext.decrypt_message())
